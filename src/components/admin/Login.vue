@@ -1,44 +1,42 @@
 <template>
-    <div class="api">
-        {{msg}}
-        <form id="login" action="http://192.168.56.101:1701/api/admin/user/login" method="post">
-            <p> <label for="name">Name</label>
-                <input
-                        id="name"
-                        v-model="name"
-                        type="text"
-                        name="name"
-                        placeholder="请输入用户名"
-                >
-            </p>
-            <p> <label for="password">Password</label>
-                <input
-                        id="password"
-                        v-model="password"
-                        type="password"
-                        name="password"
-                        placeholder="请输入密码"
-                >
-            </p>
-            <p>
-                <input type="submit" value="Submit">
-            </p>
-        </form>
+    <div class="login">
+        <input type="text" v-model="loginForm.username" placeholder="用户名"/>
+        <input type="text" v-model="loginForm.password" placeholder="密码"/>
+        <button @click="login">登录</button>
     </div>
 </template>
 
 <script>
+    import { mapMutations } from 'vuex';
     export default {
         name: "AdminLogin",
         data() {
             return {
-                msg: 'need login'
+                loginForm: {
+                    username: '',
+                    password: ''
+                }
             }
         },
-        mounted () {
-            this.axios
-                .post('/api/product/detail?id=1&uid=1')
-                .then(response => (this.info = response.data.data))
+        methods: {
+            ...mapMutations(['changeLogin']),
+            login() {
+                this.axios({
+                    method: 'post',
+                    url: '/admin/user/login',
+                    data: _this.loginForm
+                }).then(res => {
+                    console.log(res.data);
+                    _this.userToken = 'Bearer ' + res.data.data.body.token;
+                    // 将用户token保存到vuex中
+                    _this.changeLogin({ Authorization: _this.userToken });
+                    _this.$router.push('/home');
+                    alert('登陆成功');
+                }).catch(error => {
+                    alert('账号或密码错误');
+                    console.log(error);
+                });
+            }
         }
     }
 </script>
