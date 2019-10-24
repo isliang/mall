@@ -1,7 +1,7 @@
 <template>
     <div class="login">
         <input type="text" v-model="loginForm.username" placeholder="用户名"/>
-        <input type="text" v-model="loginForm.password" placeholder="密码"/>
+        <input type="password" v-model="loginForm.password" placeholder="密码"/>
         <button @click="login">登录</button>
     </div>
 </template>
@@ -21,16 +21,16 @@
         methods: {
             ...mapMutations(['changeLogin']),
             login() {
+                let _this = this;
                 this.axios({
                     method: 'post',
-                    url: '/admin/user/login',
+                    url: '/api/admin/user/login',
                     data: _this.loginForm
-                }).then(res => {
-                    console.log(res.data);
-                    _this.userToken = 'Bearer ' + res.data.data.body.token;
-                    // 将用户token保存到vuex中
-                    _this.changeLogin({ Authorization: _this.userToken });
-                    _this.$router.push('/home');
+                }).then(response => {
+                    console.log(response.data.data);
+                    _this.token = response.data.data.token;
+                    _this.changeLogin({ Authorization: _this.token });
+                    _this.$router.push('/admin/home');
                     alert('登陆成功');
                 }).catch(error => {
                     alert('账号或密码错误');
